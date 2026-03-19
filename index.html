@@ -1,13 +1,19 @@
-bash
+cat /mnt/user-data/outputs/skycasthidic.html
+Output
 
-python3 << 'PYEOF'
-with open('/mnt/user-data/outputs/skycasthidic.html','r') as f:
-    c = f.read()
-
-style_start = c.find('<style>')
-style_end = c.find('</style>') + len('</style>')
-
-new_style = """<style>
+<!DOCTYPE html>
+<html lang="bs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>SkyCastHidic</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/*
+  SkyCastHidic v4.1 — Mobile-first
+  API: Open-Meteo (free, no key, no CORS)
+*/
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
 :root{
@@ -16,15 +22,15 @@ new_style = """<style>
   --glass3:rgba(255,255,255,.24);
   --border:rgba(255,255,255,.15);
   --border2:rgba(255,255,255,.25);
+  --white:#fff;
+  --muted:rgba(255,255,255,.5);
   --r:18px;--rs:13px;
   --f:'Manrope',sans-serif;
   --mono:'Space Mono',monospace;
-  --nav:64px;
-  --topbar-h:60px;
+  --nav:62px;
   --bg1:#0a2d6e;--bg2:#1055c8;--bg3:#d4880a;
 }
 
-/* Weather backgrounds */
 body.wx-sun   {--bg1:#0c3d96;--bg2:#1a72e0;--bg3:#f5b830}
 body.wx-night {--bg1:#010a1c;--bg2:#050f2a;--bg3:#0e1d50}
 body.wx-cloud {--bg1:#2a3a4c;--bg2:#3d5268;--bg3:#607a90}
@@ -35,37 +41,19 @@ body.wx-snow  {--bg1:#364e68;--bg2:#4a6882;--bg3:#7098b8}
 body.wx-fog   {--bg1:#424e5c;--bg2:#5a6878;--bg3:#7a8e9e}
 body.wx-storm {--bg1:#080516;--bg2:#0f0826;--bg3:#160d3a}
 
-/* User themes */
 body.th-aurora  {--bg1:#091c24!important;--bg2:#0e3820!important;--bg3:#165e38!important}
 body.th-desert  {--bg1:#5c1f08!important;--bg2:#9c3010!important;--bg3:#c85a20!important}
 body.th-ocean   {--bg1:#010c3c!important;--bg2:#0040a0!important;--bg3:#0080cc!important}
 body.th-rose    {--bg1:#26061c!important;--bg2:#5a0e34!important;--bg3:#962050!important}
 body.th-night   {--bg1:#050505!important;--bg2:#0e0e0e!important;--bg3:#181818!important}
 
-html,body{
-  height:100%;
-  font-family:var(--f);
-  color:#fff;
-  background:#0a2d6e;
-  overflow:hidden;
-  -webkit-font-smoothing:antialiased;
-}
+html,body{height:100%;font-family:var(--f);color:var(--white);overflow:hidden;-webkit-font-smoothing:antialiased}
 
 /* BG */
-#bg{
-  position:fixed;inset:0;z-index:0;
-  background:#1055c8;
-  background:linear-gradient(155deg,var(--bg1,#0a2d6e) 0%,var(--bg2,#1055c8) 52%,var(--bg3,#d4880a) 100%);
-  transition:background 2.2s ease;
-}
-#bg::before{
-  content:'';position:absolute;inset:0;
-  background:
-    radial-gradient(ellipse 65% 50% at 12% 28%,rgba(255,255,255,.06) 0%,transparent 68%),
-    radial-gradient(ellipse 45% 35% at 88% 78%,rgba(0,0,0,.22) 0%,transparent 58%);
-}
+#bg{position:fixed;inset:0;z-index:0;background:linear-gradient(155deg,var(--bg1) 0%,var(--bg2) 52%,var(--bg3) 100%);transition:background 2.2s ease}
+#bg::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 65% 50% at 12% 28%,rgba(255,255,255,.06) 0%,transparent 68%),radial-gradient(ellipse 45% 35% at 88% 78%,rgba(0,0,0,.22) 0%,transparent 58%)}
 
-/* FX layers */
+/* FX */
 .fxl{position:fixed;inset:0;z-index:1;pointer-events:none}
 #stars{opacity:0;transition:opacity 2s}
 body.wx-night #stars{opacity:1}
@@ -86,62 +74,21 @@ body.wx-fog #fog{opacity:1}
 #bolt{opacity:0;background:rgba(255,255,255,.06);pointer-events:none;transition:opacity .05s}
 
 /* SHELL */
-#app{
-  position:relative;z-index:10;
-  height:100vh;height:100dvh;
-  display:flex;flex-direction:column;
-  max-width:520px;margin:0 auto;
-  color:#fff;
-}
+#app{position:relative;z-index:10;height:100dvh;display:flex;flex-direction:column;max-width:480px;margin:0 auto}
 
 /* TOPBAR */
-#topbar{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 20px;
-  height:var(--topbar-h);
-  flex-shrink:0;
-}
-.logo{
-  display:flex;align-items:center;gap:10px;
-  font-size:1.4rem;font-weight:800;letter-spacing:-.5px;
-  line-height:1;
-}
-.ldot{
-  width:10px;height:10px;
-  background:#fff;border-radius:50%;
-  animation:ldot 2.5s ease-in-out infinite;
-  flex-shrink:0;
-}
+#topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 0;flex-shrink:0}
+.logo{display:flex;align-items:center;gap:7px;font-size:1rem;font-weight:800;letter-spacing:.02em}
+.ldot{width:7px;height:7px;background:var(--white);border-radius:50%;animation:ldot 2.5s ease-in-out infinite;flex-shrink:0}
 @keyframes ldot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.6)}}
-.lsub{
-  font-size:.75em;font-weight:400;
-  opacity:.38;letter-spacing:.04em;
-}
-#utog{
-  display:flex;background:var(--glass);
-  border:1px solid var(--border);border-radius:50px;
-  padding:3px;-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);gap:2px;
-}
-.ubtn{
-  padding:5px 15px;border-radius:50px;border:none;
-  background:transparent;color:rgba(255,255,255,.5);
-  font-family:var(--f);font-size:.75rem;font-weight:700;
-  cursor:pointer;transition:all .22s;
-}
+.lsub{opacity:.35;font-weight:400;font-size:.85em}
+#utog{display:flex;background:var(--glass);border:1px solid var(--border);border-radius:50px;padding:3px;backdrop-filter:blur(16px);gap:2px}
+.ubtn{padding:4px 13px;border-radius:50px;border:none;background:transparent;color:var(--muted);font-family:var(--f);font-size:.72rem;font-weight:700;cursor:pointer;transition:all .22s}
 .ubtn.on{background:rgba(255,255,255,.22);color:#fff}
 
 /* PAGES */
 #pages{flex:1;overflow:hidden;position:relative;min-height:0}
-.page{
-  position:absolute;inset:0;
-  overflow-y:auto;overflow-x:hidden;
-  padding:8px 16px calc(var(--nav) + 10px);
-  opacity:0;pointer-events:none;
-  transition:opacity .28s ease,transform .28s ease;
-  transform:translateY(8px);
-  scrollbar-width:none;
-  -webkit-overflow-scrolling:touch;
-}
+.page{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;padding:10px 14px calc(var(--nav) + 10px);opacity:0;pointer-events:none;transition:opacity .28s ease,transform .28s ease;transform:translateY(8px);scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .page::-webkit-scrollbar{display:none}
 .page.on{opacity:1;pointer-events:all;transform:none}
 
@@ -149,35 +96,27 @@ body.wx-fog #fog{opacity:1}
 @keyframes fadeup{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 @keyframes slidedown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
 
-/* MAIN WEATHER */
-.mwx{
-  text-align:center;
-  padding:4px 0 2px;
-  animation:fadeup .5s ease both;
-}
-.city-row{display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:4px}
-.city-lbl{font-size:.9rem;font-weight:600;opacity:.78;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* HOME MAIN WEATHER */
+.mwx{text-align:center;padding:8px 0 6px;animation:fadeup .5s ease both}
+.city-row{display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:5px}
+.city-lbl{font-size:.88rem;font-weight:600;opacity:.78;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sbtn{background:none;border:none;color:rgba(255,255,255,.38);font-size:.9rem;cursor:pointer;padding:3px;transition:color .2s,transform .18s;line-height:1;flex-shrink:0}
 .sbtn:hover{transform:scale(1.3)}
 .sbtn.on{color:#ffd700}
-.wxicon{font-size:4.2rem;line-height:1;display:block;margin:2px 0;filter:drop-shadow(0 6px 16px rgba(0,0,0,.35));animation:iconf 5s ease-in-out infinite}
-@keyframes iconf{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-.tempnow{font-size:4.8rem;font-weight:800;letter-spacing:-5px;line-height:1;margin:0 0 2px;font-family:var(--mono)}
-.wxdesc{font-size:.82rem;opacity:.65;text-transform:capitalize;margin-bottom:1px}
-.feelsf{font-size:.68rem;opacity:.42;font-family:var(--mono)}
+.wxicon{font-size:4.5rem;line-height:1;display:block;margin:4px 0;filter:drop-shadow(0 8px 20px rgba(0,0,0,.35));animation:iconf 5s ease-in-out infinite}
+@keyframes iconf{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.tempnow{font-size:5.2rem;font-weight:800;letter-spacing:-5px;line-height:1;margin:2px 0 4px;font-family:var(--mono)}
+.wxdesc{font-size:.85rem;opacity:.65;text-transform:capitalize;margin-bottom:2px}
+.feelsf{font-size:.7rem;opacity:.42;font-family:var(--mono)}
 
 /* BABO CARD */
-@keyframes baboIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-@keyframes baboOut{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-10px)}}
+@keyframes baboIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes baboOut{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-12px)}}
 .babo-in{animation:baboIn .4s cubic-bezier(.4,0,.2,1) both}
 .babo-out{animation:baboOut .32s cubic-bezier(.4,0,.2,1) both}
 
 /* CARDS */
-.card{
-  background:var(--glass);border:1px solid var(--border);
-  -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
-  border-radius:var(--r);padding:12px 14px;transition:background .18s;
-}
+.card{background:var(--glass);border:1px solid var(--border);backdrop-filter:blur(16px);border-radius:var(--r);padding:13px 15px;transition:background .18s}
 .card-row{display:flex;align-items:center;gap:12px}
 .card-ico{font-size:1.5rem;flex-shrink:0}
 .card-body{flex:1;min-width:0}
@@ -185,64 +124,65 @@ body.wx-fog #fog{opacity:1}
 .cval{font-size:.86rem;font-weight:600;line-height:1.4}
 
 /* RAIN */
-.rain-card{margin:6px 0;animation:fadeup .5s .1s ease both}
+.rain-card{margin:7px 0;animation:fadeup .5s .1s ease both}
 .rain-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 .rain-lbl{font-size:.56rem;text-transform:uppercase;letter-spacing:.1em;opacity:.4}
 .rain-pct{font-size:1rem;font-weight:700;font-family:var(--mono)}
 .rbar{height:5px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden}
 .rfill{height:100%;border-radius:3px;background:linear-gradient(90deg,#38c0f8,#0f60e0);transition:width 1.2s ease}
 
-/* HIGHLIGHTS */
-.hlgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:6px 0;animation:fadeup .5s .15s ease both}
-.hl{background:var(--glass);border:1px solid var(--border);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-radius:var(--r);padding:11px 10px;text-align:center;transition:background .18s}
+/* HIGHLIGHTS GRID */
+.hlgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:7px 0;animation:fadeup .5s .15s ease both}
+.hl{background:var(--glass);border:1px solid var(--border);backdrop-filter:blur(14px);border-radius:var(--r);padding:12px 10px;text-align:center;transition:background .18s}
 .hl.full{grid-column:1/-1}
-.hlbl{font-size:.54rem;text-transform:uppercase;letter-spacing:.1em;opacity:.38;margin-bottom:4px}
-.hval{font-size:1.1rem;font-weight:700;letter-spacing:-.5px;font-family:var(--mono)}
-.hsub{font-size:.58rem;opacity:.38;margin-top:3px}
-.sunrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
-.stime{font-size:.9rem;font-weight:700;font-family:var(--mono)}
-.sico{font-size:1.1rem}
+.hlbl{font-size:.55rem;text-transform:uppercase;letter-spacing:.1em;opacity:.38;margin-bottom:5px}
+.hval{font-size:1.15rem;font-weight:700;letter-spacing:-.5px;font-family:var(--mono)}
+.hsub{font-size:.6rem;opacity:.38;margin-top:3px}
+.sunrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.stime{font-size:.95rem;font-weight:700;font-family:var(--mono)}
+.sico{font-size:1.2rem}
 .sunbar{height:4px;background:rgba(255,255,255,.12);border-radius:2px;position:relative}
 .sfill{position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,#ffe040,#ff8820);border-radius:2px;transition:width 1.4s ease}
-.slls{display:flex;justify-content:space-between;margin-top:4px;font-size:.54rem;opacity:.35}
+.slls{display:flex;justify-content:space-between;margin-top:4px;font-size:.56rem;opacity:.35}
 
 /* SECTION TITLES */
-.stit{font-size:.56rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;opacity:.38;margin:10px 0 6px 2px}
+.stit{font-size:.58rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;opacity:.38;margin:12px 0 7px 2px}
 
 /* HOURLY */
 .hwrap{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;animation:fadeup .5s .2s ease both;cursor:grab;user-select:none}
 .hwrap:active{cursor:grabbing}
 .hwrap::-webkit-scrollbar{display:none}
-.hrow{display:flex;gap:7px;padding:2px 2px 4px 2px;touch-action:pan-x}
-.hc{width:60px;flex-shrink:0;background:var(--glass);border:1px solid var(--border);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-radius:var(--rs);padding:8px 5px;text-align:center;transition:background .18s}
-.hc:active{background:var(--glass2)}
-.htime{font-size:.58rem;opacity:.45;margin-bottom:3px;font-family:var(--mono)}
-.hico{font-size:1.15rem;margin-bottom:3px}
-.htemp{font-size:.78rem;font-weight:700;font-family:var(--mono)}
-.hpop{font-size:.54rem;color:#6dd4f8;margin-top:2px}
-.hwsp{font-size:.52rem;opacity:.34;margin-top:1px}
+.hrow{display:flex;gap:7px;padding:2px 2px 6px 2px;touch-action:pan-x}
+.hc{width:60px;flex-shrink:0;background:var(--glass);border:1px solid var(--border);backdrop-filter:blur(12px);border-radius:var(--rs);padding:9px 5px;text-align:center;transition:background .18s,transform .15s}
+.hc:active{background:var(--glass2);transform:translateY(-2px)}
+.htime{font-size:.58rem;opacity:.45;margin-bottom:4px;font-family:var(--mono)}
+.hico{font-size:1.2rem;margin-bottom:3px}
+.htemp{font-size:.8rem;font-weight:700;font-family:var(--mono)}
+.hpop{font-size:.56rem;color:#6dd4f8;margin-top:3px}
+.hwsp{font-size:.54rem;opacity:.34;margin-top:2px}
 
-/* 7-DAY HORIZONTAL SWIPE */
+/* 7-DAY HORIZONTAL */
 .dwrap{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;animation:fadeup .5s .25s ease both;cursor:grab;user-select:none}
 .dwrap:active{cursor:grabbing}
 .dwrap::-webkit-scrollbar{display:none}
-.dlist{display:flex;flex-direction:row;gap:7px;padding:2px 2px 4px 2px;touch-action:pan-x}
-.drow{display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--glass);border:1px solid var(--border);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-radius:var(--r);padding:11px 7px;width:80px;flex-shrink:0;text-align:center;transition:background .18s}
+.dlist{display:flex;flex-direction:row;gap:8px;padding:2px 2px 6px 2px}
+.drow{display:flex;flex-direction:column;align-items:center;gap:5px;background:var(--glass);border:1px solid var(--border);backdrop-filter:blur(12px);border-radius:var(--r);padding:13px 8px;width:84px;flex-shrink:0;text-align:center;transition:background .18s,transform .15s;touch-action:pan-x}
 .drow:active{background:var(--glass2)}
-.dday{font-size:.66rem;font-weight:700;letter-spacing:.02em;opacity:.72}
-.dico{font-size:1.5rem}
-.ddesc{font-size:.52rem;opacity:.38;line-height:1.3;width:100%;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-.dpop{font-size:.56rem;color:#6dd4f8;min-height:.75rem}
-.dhi{font-family:var(--mono);font-size:.82rem;font-weight:700}
-.dlo2{font-family:var(--mono);font-size:.66rem;opacity:.4}
+.dday{font-size:.68rem;font-weight:700;letter-spacing:.02em;opacity:.72}
+.dico{font-size:1.6rem}
+.ddesc{font-size:.54rem;opacity:.38;line-height:1.3;width:100%;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.dpop{font-size:.58rem;color:#6dd4f8;min-height:.8rem}
+.dhi{font-family:var(--mono);font-size:.86rem;font-weight:700}
+.dlo2{font-family:var(--mono);font-size:.68rem;opacity:.4}
 
 /* SEARCH */
 .swrap{position:relative;margin-bottom:12px}
-.sinp{width:100%;background:var(--glass2);border:1px solid var(--border);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border-radius:var(--r);padding:13px 46px 13px 16px;color:#fff;font-family:var(--f);font-size:.94rem;font-weight:500;outline:none;transition:border-color .2s;-webkit-appearance:none}
+.sinp{width:100%;background:var(--glass2);border:1px solid var(--border);backdrop-filter:blur(18px);border-radius:var(--r);padding:13px 46px 13px 16px;color:#fff;font-family:var(--f);font-size:.94rem;font-weight:500;outline:none;transition:border-color .2s;-webkit-appearance:none}
 .sinp::placeholder{color:rgba(255,255,255,.28)}
 .sinp:focus{border-color:var(--border2)}
-.sgo{position:absolute;right:13px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,.45);font-size:1.1rem;cursor:pointer;padding:4px}
-#bih-drop{position:absolute;top:calc(100% + 6px);left:0;right:0;background:rgba(8,16,36,.96);border:1px solid var(--border2);border-radius:var(--r);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);max-height:240px;overflow-y:auto;z-index:500;display:none}
+.sgo{position:absolute;right:13px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,.45);font-size:1.1rem;cursor:pointer;padding:4px;transition:color .18s}
+.sgo:hover{color:#fff}
+#bih-drop{position:absolute;top:calc(100% + 6px);left:0;right:0;background:rgba(8,16,36,.96);border:1px solid var(--border2);border-radius:var(--r);backdrop-filter:blur(20px);max-height:240px;overflow-y:auto;z-index:500;display:none;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.2) transparent}
 #bih-drop.open{display:block}
 .dditem{padding:10px 15px;cursor:pointer;font-size:.86rem;font-weight:500;border-bottom:1px solid rgba(255,255,255,.06);transition:background .14s;display:flex;align-items:center;gap:8px}
 .dditem:last-child{border-bottom:none}
@@ -250,10 +190,10 @@ body.wx-fog #fog{opacity:1}
 .ddmeta{font-size:.62rem;opacity:.4;margin-top:1px}
 .ctit{font-size:.56rem;opacity:.36;text-transform:uppercase;letter-spacing:.1em;margin-bottom:7px;padding-left:2px}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
-.chip{background:var(--glass);border:1px solid var(--border);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-radius:50px;padding:5px 13px;font-size:.75rem;font-weight:600;cursor:pointer;transition:background .15s;color:#fff;-webkit-tap-highlight-color:transparent}
+.chip{background:var(--glass);border:1px solid var(--border);backdrop-filter:blur(10px);border-radius:50px;padding:5px 13px;font-size:.75rem;font-weight:600;cursor:pointer;transition:background .15s;color:#fff;-webkit-tap-highlight-color:transparent}
 .chip:active{background:var(--glass2)}
 .rlist{display:flex;flex-direction:column;gap:7px}
-.rc{display:flex;align-items:center;justify-content:space-between;background:var(--glass);border:1px solid var(--border);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-radius:var(--r);padding:13px 15px;cursor:pointer;transition:background .18s;animation:fadeup .3s ease both;-webkit-tap-highlight-color:transparent}
+.rc{display:flex;align-items:center;justify-content:space-between;background:var(--glass);border:1px solid var(--border);backdrop-filter:blur(12px);border-radius:var(--r);padding:13px 15px;cursor:pointer;transition:background .18s;animation:fadeup .3s ease both;-webkit-tap-highlight-color:transparent}
 .rc:active{background:var(--glass2)}
 .rcity{font-weight:700;font-size:.9rem}
 .rinfo{font-size:.66rem;opacity:.4;margin-top:2px}
@@ -261,7 +201,7 @@ body.wx-fog #fog{opacity:1}
 /* SETTINGS */
 .sg{margin-bottom:14px}
 .sgt{font-size:.56rem;opacity:.34;text-transform:uppercase;letter-spacing:.12em;margin-bottom:7px;padding-left:2px}
-.sbox{background:var(--glass);border:1px solid var(--border);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-radius:var(--r);overflow:hidden}
+.sbox{background:var(--glass);border:1px solid var(--border);backdrop-filter:blur(16px);border-radius:var(--r);overflow:hidden}
 .srow{display:flex;align-items:center;justify-content:space-between;padding:13px 15px;border-bottom:1px solid rgba(255,255,255,.06);transition:background .14s}
 .srow:last-child{border-bottom:none}
 .slbl{font-size:.84rem;font-weight:600}
@@ -280,42 +220,20 @@ body.wx-fog #fog{opacity:1}
 .t-night{background:linear-gradient(135deg,#050505,#181818)}
 
 /* NAV */
-#nav{
-  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
-  width:100%;max-width:520px;height:var(--nav);
-  background:rgba(4,10,24,.65);
-  -webkit-backdrop-filter:blur(28px);backdrop-filter:blur(28px);
-  border-top:1px solid rgba(255,255,255,.08);
-  display:flex;align-items:center;justify-content:space-around;
-  z-index:200;padding:0 8px;padding-bottom:env(safe-area-inset-bottom);
-}
-.nbtn{
-  display:flex;flex-direction:column;align-items:center;gap:3px;
-  background:none;border:none;color:rgba(255,255,255,.32);
-  cursor:pointer;padding:7px 20px;border-radius:13px;
-  transition:color .2s,background .2s;
-  font-family:var(--f);font-size:.52rem;font-weight:700;
-  text-transform:uppercase;letter-spacing:.07em;
-  -webkit-tap-highlight-color:transparent;
-}
+#nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:var(--nav);background:rgba(4,10,24,.65);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-around;z-index:200;padding:0 8px;padding-bottom:env(safe-area-inset-bottom)}
+.nbtn{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;color:rgba(255,255,255,.32);cursor:pointer;padding:7px 18px;border-radius:13px;transition:color .2s,background .2s;font-family:var(--f);font-size:.52rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;-webkit-tap-highlight-color:transparent}
 .nbtn.on{color:#fff;background:rgba(255,255,255,.1)}
 .nico{font-size:1.2rem;line-height:1}
 
 /* LOADING */
-#loading{
-  position:fixed;inset:0;z-index:999;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  background:#0a1836;
-  background:linear-gradient(160deg,#060e22 0%,#0a1836 60%,#0e2254 100%);
-  gap:18px;
-}
+#loading{position:fixed;inset:0;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(160deg,#060e22 0%,#0a1836 60%,#0e2254 100%);gap:18px}
 .lring{width:44px;height:44px;border-radius:50%;border:3px solid rgba(255,255,255,.08);border-top-color:rgba(255,255,255,.8);animation:spin .65s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .ltxt{font-size:.76rem;opacity:.44;font-family:var(--mono);animation:lpulse 1.8s ease-in-out infinite}
 @keyframes lpulse{0%,100%{opacity:.25}50%{opacity:.75}}
 
 /* TOAST */
-#toast{position:fixed;bottom:calc(var(--nav) + 12px);left:50%;transform:translateX(-50%) translateY(12px);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-radius:12px;padding:9px 20px;font-size:.76rem;font-weight:700;opacity:0;transition:all .28s;z-index:300;pointer-events:none;white-space:nowrap}
+#toast{position:fixed;bottom:calc(var(--nav) + 12px);left:50%;transform:translateX(-50%) translateY(12px);backdrop-filter:blur(16px);border-radius:12px;padding:9px 20px;font-size:.76rem;font-weight:700;opacity:0;transition:all .28s;z-index:300;pointer-events:none;white-space:nowrap}
 #toast.err{background:rgba(200,30,30,.92)}
 #toast.inf{background:rgba(10,60,160,.92)}
 #toast.ok{background:rgba(15,130,60,.92)}
@@ -325,177 +243,726 @@ body.wx-fog #fog{opacity:1}
 #offbar{background:rgba(160,50,0,.92);text-align:center;padding:6px;font-size:.72rem;font-weight:700;position:relative;z-index:50;display:none}
 body.offline #offbar{display:block}
 
-/* ══════════════════════════════════════
-   RESPONSIVE — fluid scaling
-   Phone portrait: default
-   Phone landscape: 2-col compact
-   Tablet portrait (600px+): bigger
-   Tablet landscape (900px+): sidebar nav
-══════════════════════════════════════ */
-
-/* Small phones */
-@media (max-width:360px){
-  .tempnow{font-size:4rem;letter-spacing:-4px}
-  .wxicon{font-size:3.6rem}
-  .logo{font-size:1.2rem}
+/* ═══ LANDSCAPE PHONE (narrow height) ═══ */
+@media (orientation:landscape) and (max-height:500px){
+  :root{--nav:50px}
+  #topbar{padding:8px 14px 0}
+  .logo{font-size:.9rem}
+  .page{padding:8px 12px calc(var(--nav) + 8px)}
+  #page-home{display:grid;grid-template-columns:170px 1fr;column-gap:12px;align-content:start}
+  .mwx{grid-column:1;grid-row:1/span 20;position:sticky;top:0;align-self:start;padding-top:2px}
+  .wxicon{font-size:3.2rem}
+  .tempnow{font-size:3rem;letter-spacing:-3px}
+  .rain-card,.hlgrid,.dwrap{grid-column:2}
+  .stit,.hwrap{grid-column:1/-1}
+  .stit:first-of-type{display:none}
 }
 
-/* Tablet portrait (600px+) */
-@media (min-width:600px) and (orientation:portrait){
-  :root{--nav:72px;--topbar-h:70px}
-  #app{max-width:600px}
-  #nav{max-width:600px}
-  .logo{font-size:1.6rem;gap:12px}
-  .ldot{width:12px;height:12px}
-  .tempnow{font-size:5.8rem}
-  .wxicon{font-size:5rem}
-  .mwx{padding:12px 0 8px}
-  .hval{font-size:1.3rem}
-  .drow{width:90px;padding:13px 8px}
-  .hc{width:68px;padding:10px 6px}
-}
-
-/* Phone landscape (short height) */
-@media (orientation:landscape) and (max-height:450px){
-  :root{--nav:52px;--topbar-h:46px}
-  #topbar{padding:0 14px}
-  .logo{font-size:1rem;gap:7px}
-  .ldot{width:8px;height:8px}
-  .page{padding:6px 12px calc(var(--nav) + 6px)}
-  #page-home{
-    display:grid;
-    grid-template-columns:160px 1fr;
-    column-gap:12px;
-    align-content:start;
-  }
-  .mwx{
-    grid-column:1;grid-row:1/span 20;
-    position:sticky;top:0;align-self:start;
-    padding-top:2px;
-  }
-  .wxicon{font-size:2.8rem}
-  .tempnow{font-size:2.8rem;letter-spacing:-3px}
-  .wxdesc,.feelsf{font-size:.6rem}
-  .rain-card{grid-column:2;margin-top:0}
-  .hlgrid{grid-column:2}
-  .stit{font-size:.5rem;margin:6px 0 4px}
-  .hwrap,.dwrap{grid-column:1/-1}
-  .hc{width:54px}
-  .drow{width:72px}
-}
-
-/* Tablet landscape (900px+) — sidebar layout */
-@media (orientation:landscape) and (min-width:900px){
-  :root{--nav:76px;--topbar-h:0px}
+/* ═══ TABLET LANDSCAPE (800px+) ═══ */
+@media (orientation:landscape) and (min-width:800px){
+  :root{--nav:72px}
   html,body{overflow:hidden}
-  #app{max-width:100%;height:100vh;height:100dvh;flex-direction:row}
-  #topbar{display:none}
-
-  /* Sidebar nav */
-  #nav{
-    position:fixed;left:0;top:0;bottom:0;right:auto;
-    transform:none;width:82px;max-width:82px;height:100vh;
-    flex-direction:column;justify-content:center;
-    border-top:none;border-right:1px solid rgba(255,255,255,.08);
-    padding:0 0 0 0;gap:4px;padding-top:86px;
-  }
-  #nav-logo{display:flex!important;position:absolute;top:0;left:0;width:82px;height:78px;flex-direction:column;align-items:center;justify-content:center;gap:5px;border-bottom:1px solid rgba(255,255,255,.08)}
-  #nav-logo .nl-dot{width:8px;height:8px;background:#fff;border-radius:50%;animation:ldot 2.5s ease-in-out infinite}
-  #nav-logo .nl-sky{font-size:.72rem;font-weight:800;letter-spacing:.04em;opacity:.9}
-  #nav-logo .nl-cast{font-size:.6rem;font-weight:400;opacity:.38;letter-spacing:.06em}
-  .nbtn{padding:11px 8px;border-radius:12px;width:58px}
+  #app{max-width:100%;height:100vh}
+  #nav{position:fixed;left:0;top:0;bottom:0;right:auto;transform:none;width:76px;max-width:76px;height:100vh;flex-direction:column;justify-content:center;border-top:none;border-right:1px solid rgba(255,255,255,.08);padding:0;gap:4px;padding-top:80px}
+  #nav::before{content:'';display:none}
+  #nav-logo{display:flex!important}
+  #nav-logo{position:absolute;top:0;left:0;width:76px;height:72px;display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:4px;border-bottom:1px solid rgba(255,255,255,.08)}
+  #nav-logo .nl-dot{width:7px;height:7px;background:#fff;border-radius:50%;animation:ldot 2.5s ease-in-out infinite}
+  #nav-logo .nl-sky{font-size:.62rem;font-weight:800;letter-spacing:.04em;opacity:.9}
+  #nav-logo .nl-cast{font-size:.52rem;font-weight:400;opacity:.38;letter-spacing:.06em}
+  .nbtn{padding:10px 6px;border-radius:12px;width:54px}
   .nbtn span:last-child{display:none}
-  .nico{font-size:1.4rem}
-
-  #pages{margin-left:82px;flex:1}
-  .page{padding:16px 24px 16px}
-  #toast{left:calc(82px + 50%);bottom:18px}
-  #loading{padding-left:82px}
-
-  /* 2-column home layout */
-  #page-home{
-    display:grid;
-    grid-template-columns:220px 1fr;
-    column-gap:22px;
-    align-content:start;
-    height:100%;overflow-y:auto;scrollbar-width:none;
-  }
+  .nico{font-size:1.35rem}
+  #topbar{display:none}
+  #pages{margin-left:76px;flex:1}
+  .page{padding:18px 22px 18px}
+  #page-home{display:grid;grid-template-columns:200px 1fr;column-gap:20px;align-content:start;height:100%;overflow-y:auto;scrollbar-width:none}
   #page-home::-webkit-scrollbar{display:none}
-  .mwx{grid-column:1;grid-row:1/span 8;position:sticky;top:0;align-self:start;padding-top:12px}
-  .rain-card{grid-column:2;margin-top:12px}
+  .mwx{grid-column:1;grid-row:1/span 8;position:sticky;top:0;align-self:start;padding-top:10px}
+  .rain-card{grid-column:2;margin-top:10px}
   .hlgrid{grid-column:2}
   .stit,.hwrap,.dwrap{grid-column:1/-1}
-  .wxicon{font-size:5.2rem}
-  .tempnow{font-size:5rem}
-  .city-lbl{font-size:1rem}
+  .wxicon{font-size:5rem}
+  .tempnow{font-size:4.8rem}
+  #toast{left:calc(76px + 50%);bottom:18px}
+  #loading{padding-left:76px}
 }
 
-/* Large tablet landscape (1200px+) */
-@media (orientation:landscape) and (min-width:1200px){
-  #page-home{grid-template-columns:260px 1fr;column-gap:28px}
-  .tempnow{font-size:5.8rem}
-  .wxicon{font-size:5.8rem}
-  .hval{font-size:1.3rem}
+@media (min-height:800px){
+  .mwx{padding:14px 0 8px}
+  .wxicon{font-size:5rem}
+  .tempnow{font-size:5.5rem}
+}
+</style>
+</head>
+<body class="wx-sun">
+<div id="bg"></div>
+<div class="fxl" id="stars"></div>
+<div class="fxl" id="rain"></div>
+<div class="fxl" id="snow"></div>
+<div class="fxl" id="fog"></div>
+<div class="fxl" id="bolt"></div>
+<div id="offbar">⚠ No internet connection</div>
+<div id="loading">
+  <div style="font-size:3rem;animation:iconf 3s ease-in-out infinite">🌤</div>
+  <div class="lring"></div>
+  <div class="ltxt" id="ltxt">Locating you…</div>
+</div>
+<div id="toast"></div>
+
+<div id="app">
+  <div id="topbar" style="animation:slidedown .45s ease">
+    <div class="logo"><div class="ldot"></div>SkyCast<span class="lsub">Hidic</span></div>
+    <div id="utog">
+      <button class="ubtn on" onclick="setUnit('C')">°C</button>
+      <button class="ubtn"    onclick="setUnit('F')">°F</button>
+    </div>
+  </div>
+
+  <div id="pages">
+
+    <!-- ═══ HOME ═══ -->
+    <div class="page on" id="page-home">
+      <div class="mwx">
+        <div class="city-row">
+          <span class="city-lbl" id="hcity">—</span>
+          <button class="sbtn" id="favbtn" onclick="toggleFav()">☆</button>
+        </div>
+        <span class="wxicon" id="hicon">🌤</span>
+        <div class="tempnow" id="htemp">—</div>
+        <div class="wxdesc"  id="hdesc">—</div>
+        <div class="feelsf"  id="hfeels">—</div>
+      </div>
+
+      <!-- Babo Card -->
+      <div class="card rain-card" id="babocard" style="margin:8px 0;animation:fadeup .5s .08s ease both;overflow:hidden;min-height:64px;position:relative">
+        <div id="babowrap" style="position:relative;width:100%;height:100%">
+          <div class="card-row" id="babocur">
+            <div class="card-ico" id="baboem">😎</div>
+            <div class="card-body">
+              <div class="clbl">Poruka dana</div>
+              <div class="cval" id="babotxt">Učitavanje…</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rain chance -->
+      <div class="card rain-card">
+        <div class="rain-top">
+          <span class="rain-lbl" id="rainlbl">RAIN PROBABILITY (NEXT HOUR)</span>
+          <span class="rain-pct" id="rainpct">—%</span>
+        </div>
+        <div class="rbar"><div class="rfill" id="rfill" style="width:0%"></div></div>
+      </div>
+
+      <!-- Highlights -->
+      <div class="hlgrid">
+        <div class="hl"><div class="hlbl">💧 Humidity</div><div class="hval" id="hlhum">—</div><div class="hsub">relative</div></div>
+        <div class="hl"><div class="hlbl">🌬 Wind</div><div class="hval" id="hlwind">—</div><div class="hsub" id="hlwdir">—</div></div>
+        <div class="hl"><div class="hlbl">☀️ UV Index</div><div class="hval" id="hluv">—</div><div class="hsub" id="hluvl">—</div></div>
+        <div class="hl"><div class="hlbl">👁 Visibility</div><div class="hval" id="hlvis">—</div><div class="hsub">km</div></div>
+        <div class="hl"><div class="hlbl">💨 Pressure</div><div class="hval" id="hlpres">—</div><div class="hsub">hPa</div></div>
+        <div class="hl"><div class="hlbl">🌡 Dew Point</div><div class="hval" id="hldew">—</div><div class="hsub" id="hldewu">—</div></div>
+        <div class="hl full">
+          <div class="hlbl">🌅 Sunrise &amp; Sunset</div>
+          <div class="sunrow">
+            <div class="stime" id="hlsr">—</div>
+            <div class="sico">☀️</div>
+            <div class="stime" id="hlss">—</div>
+          </div>
+          <div class="sunbar"><div class="sfill" id="sfill" style="width:0%"></div></div>
+          <div class="slls"><span>Sunrise</span><span>Sunset</span></div>
+        </div>
+      </div>
+
+      <div class="stit">24-Hour Forecast</div>
+      <div class="hwrap"><div class="hrow" id="hourly"></div></div>
+
+      <div class="stit">7-Day Forecast</div>
+      <div class="dwrap"><div class="dlist" id="daily"></div></div>
+    </div>
+
+    <!-- ═══ SEARCH ═══ -->
+    <div class="page" id="page-search">
+      <div class="stit" style="margin-top:4px">Search Any City</div>
+      <div class="swrap">
+        <input class="sinp" id="sinp" placeholder="Upišite grad ili mjesto…" autocomplete="off"
+          oninput="onType()" onkeydown="handleKey(event)" onfocus="showDrop()" onblur="hideDrop()">
+        <button class="sgo" onclick="doSearch()">🔍</button>
+        <div id="bih-drop"></div>
+      </div>
+
+      <div class="ctit">Bosna i Hercegovina — sva mjesta</div>
+      <div class="chips" id="bihchips"></div>
+
+      <div class="ctit" style="margin-top:8px">Regija</div>
+      <div class="chips" id="regchips"></div>
+
+      <div class="rlist" id="rlist"></div>
+    </div>
+
+    <!-- ═══ SETTINGS ═══ -->
+    <div class="page" id="page-settings">
+      <div class="stit" style="margin-top:4px">Settings</div>
+      <div class="sg">
+        <div class="sgt">Language</div>
+        <div class="sbox">
+          <div class="srow"><div class="slbl">App Language</div>
+          <select class="ssel" id="langsel" onchange="setLang(this.value)">
+            <option value="en">🇬🇧 English</option>
+            <option value="bs" selected>🇧🇦 Bosanski</option>
+            <option value="hr">🇭🇷 Hrvatski</option>
+            <option value="sr">🇷🇸 Srpski</option>
+            <option value="de">🇩🇪 Deutsch</option>
+            <option value="fr">🇫🇷 Français</option>
+          </select></div>
+        </div>
+      </div>
+      <div class="sg">
+        <div class="sgt">Units</div>
+        <div class="sbox">
+          <div class="srow"><div class="slbl">Temperature</div>
+          <select class="ssel" id="unitsel" onchange="setUnit(this.value)">
+            <option value="C">Celsius (°C)</option>
+            <option value="F">Fahrenheit (°F)</option>
+          </select></div>
+        </div>
+      </div>
+      <div class="sg">
+        <div class="sgt">Theme</div>
+        <div class="sbox">
+          <div class="tgrid">
+            <div class="tsw t-blue  on" data-t="blue"   onclick="setTheme(this)" title="Blue"></div>
+            <div class="tsw t-aurora"   data-t="aurora" onclick="setTheme(this)" title="Aurora"></div>
+            <div class="tsw t-desert"   data-t="desert" onclick="setTheme(this)" title="Desert"></div>
+            <div class="tsw t-ocean"    data-t="ocean"  onclick="setTheme(this)" title="Ocean"></div>
+            <div class="tsw t-rose"     data-t="rose"   onclick="setTheme(this)" title="Rose"></div>
+            <div class="tsw t-night"    data-t="night"  onclick="setTheme(this)" title="Midnight"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sg">
+        <div class="sgt">About</div>
+        <div class="sbox">
+          <div class="srow"><div><div class="slbl">SkyCastHidic v4.0</div><div class="ssub">Open-Meteo · Real-time · No API key needed</div></div></div>
+          <div class="srow" style="cursor:pointer" onclick="detectGeo()">
+            <div><div class="slbl">📍 Re-detect My Location</div><div class="ssub">Re-run GPS detection</div></div>
+            <span style="opacity:.3">›</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <nav id="nav">
+    <div id="nav-logo" style="display:none"><div class="nl-dot"></div><div class="nl-sky">SkyCast</div><div class="nl-cast">Hidic</div></div>
+    <button class="nbtn on" onclick="goPg('home',this)"><span class="nico">🏠</span><span id="n0">Home</span></button>
+    <button class="nbtn"    onclick="goPg('search',this)"><span class="nico">🔍</span><span id="n1">Search</span></button>
+    <button class="nbtn"    onclick="goPg('settings',this)"><span class="nico">⚙️</span><span id="n2">Settings</span></button>
+  </nav>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   SkyCastHidic v4.0
+   ── APIs used (all free, no key, browser-compatible) ──
+   • Open-Meteo Weather: api.open-meteo.com
+   • Open-Meteo Geocoding: geocoding-api.open-meteo.com
+   • Reverse geocoding: nominatim.openstreetmap.org
+   ── BiH database: 220 settlements embedded ──
+═══════════════════════════════════════════════════════ */
+
+/* ── STATE ── */
+let unit='C', lang='bs', theme='blue', curData=null;
+let favs=[], fxDone={}, boltT=null, typeT=null, dropIdx=-1;
+try{favs=JSON.parse(localStorage.getItem('sch4_favs')||'[]')}catch(e){}
+
+/* ── TRANSLATIONS ── */
+const TR={
+  en:{home:'Home',search:'Search',settings:'Settings',act_lbl:'Activity Suggestion',feels:'Feels like',no_city:'City not found',offline:'No internet',err:'Failed to load weather',detect:'Locating you…',load:'Loading weather…',rain:'Rain Probability',today:'Today'},
+  bs:{home:'Početna',search:'Pretraga',settings:'Postavke',act_lbl:'Prijedlog aktivnosti',feels:'Osjeća se kao',no_city:'Grad nije pronađen',offline:'Nema interneta',err:'Greška pri učitavanju',detect:'Otkrivanje lokacije…',load:'Učitavanje…',rain:'Vjerovatnoća kiše',today:'Danas'},
+  hr:{home:'Početna',search:'Pretraži',settings:'Postavke',act_lbl:'Prijedlog aktivnosti',feels:'Osjeća se',no_city:'Grad nije pronađen',offline:'Nema interneta',err:'Greška',detect:'Otkrivanje…',load:'Učitavanje…',rain:'Vjerovatnoća kiše',today:'Danas'},
+  sr:{home:'Početna',search:'Pretraga',settings:'Podešavanja',act_lbl:'Predlog aktivnosti',feels:'Oseća se',no_city:'Grad nije pronađen',offline:'Nema interneta',err:'Greška',detect:'Otkrivanje…',load:'Učitavanje…',rain:'Vjerovatnoća kiše',today:'Danas'},
+  de:{home:'Start',search:'Suche',settings:'Einstellungen',act_lbl:'Aktivitätsvorschlag',feels:'Gefühlt',no_city:'Stadt nicht gefunden',offline:'Kein Internet',err:'Ladefehler',detect:'Standort…',load:'Laden…',rain:'Regenwahrscheinlichkeit',today:'Heute'},
+  fr:{home:'Accueil',search:'Recherche',settings:'Paramètres',act_lbl:'Suggestion',feels:'Ressenti',no_city:'Ville introuvable',offline:'Pas de connexion',err:'Erreur',detect:'Détection…',load:'Chargement…',rain:'Probabilité de pluie',today:'Aujourd\'hui'}
+};
+const tr=k=>(TR[lang]||TR.en)[k]||k;
+
+/* ── NEAR-REGION CITIES ── */
+const NEAR=['Zagreb','Beograd','Split','Ljubljana','Podgorica','Wien','Budapest','Skopje','Dubrovnik','Zadar','Osijek','Rijeka'];
+
+/* ── BiH PLACES DATABASE (220 settlements) ── */
+const BIH=[{"n":"Sarajevo","lat":43.8519,"lon":18.3866},{"n":"Ilidža","lat":43.8302,"lon":18.3103},{"n":"Vogošća","lat":43.9034,"lon":18.3483},{"n":"Hadžići","lat":43.8217,"lon":18.1983},{"n":"Ilijaš","lat":43.9583,"lon":18.27},{"n":"Trnovo FBiH","lat":43.7167,"lon":18.3667},{"n":"Zenica","lat":44.2017,"lon":17.9078},{"n":"Zavidovići","lat":44.445,"lon":18.1517},{"n":"Žepče","lat":44.4283,"lon":18.0483},{"n":"Maglaj","lat":44.55,"lon":18.1},{"n":"Tešanj","lat":44.6117,"lon":17.9867},{"n":"Visoko","lat":44.0044,"lon":18.1775},{"n":"Kakanj","lat":44.1367,"lon":18.1083},{"n":"Breza","lat":44.0283,"lon":18.2567},{"n":"Vareš","lat":44.1667,"lon":18.3333},{"n":"Olovo","lat":44.1283,"lon":18.5583},{"n":"Tuzla","lat":44.5382,"lon":18.6766},{"n":"Živinice","lat":44.4483,"lon":18.6483},{"n":"Lukavac","lat":44.5483,"lon":18.5283},{"n":"Banovići","lat":44.4067,"lon":18.5333},{"n":"Gradačac","lat":44.8817,"lon":18.425},{"n":"Gračanica","lat":44.71,"lon":18.3133},{"n":"Srebrenik","lat":44.7083,"lon":18.49},{"n":"Kalesija","lat":44.46,"lon":18.8517},{"n":"Sapna","lat":44.4983,"lon":18.9667},{"n":"Teočak","lat":44.5267,"lon":18.8067},{"n":"Čelić","lat":44.7183,"lon":18.815},{"n":"Kladanj","lat":44.2283,"lon":18.69},{"n":"Bihać","lat":44.8167,"lon":15.87},{"n":"Cazin","lat":44.9667,"lon":15.9333},{"n":"Velika Kladuša","lat":45.1833,"lon":15.8},{"n":"Bosanska Krupa","lat":44.8817,"lon":16.155},{"n":"Sanski Most","lat":44.7667,"lon":16.6667},{"n":"Bosanski Petrovac","lat":44.55,"lon":16.35},{"n":"Ključ","lat":44.5367,"lon":16.775},{"n":"Buzim","lat":45.1067,"lon":16.0467},{"n":"Krupa na Uni","lat":44.9033,"lon":16.135},{"n":"Orašje","lat":45.0333,"lon":18.6833},{"n":"Odžak","lat":45.0083,"lon":18.3283},{"n":"Goražde","lat":43.6667,"lon":18.9767},{"n":"Travnik","lat":44.2267,"lon":17.6617},{"n":"Bugojno","lat":44.06,"lon":17.455},{"n":"Vitez","lat":44.1583,"lon":17.7883},{"n":"Novi Travnik","lat":44.1817,"lon":17.6617},{"n":"Kiseljak","lat":43.9433,"lon":18.08},{"n":"Kreševo","lat":43.8633,"lon":18.05},{"n":"Fojnica","lat":43.97,"lon":17.9017},{"n":"Donji Vakuf","lat":44.1317,"lon":17.3983},{"n":"Jajce","lat":44.3417,"lon":17.2683},{"n":"Busovača","lat":44.1017,"lon":17.8783},{"n":"Mostar","lat":43.3436,"lon":17.8078},{"n":"Konjic","lat":43.6567,"lon":17.9617},{"n":"Jablanica","lat":43.6617,"lon":17.7517},{"n":"Čapljina","lat":43.1133,"lon":17.705},{"n":"Čitluk","lat":43.1783,"lon":17.685},{"n":"Ljubuški","lat":43.1983,"lon":17.5533},{"n":"Stolac","lat":43.0833,"lon":17.9583},{"n":"Prozor-Rama","lat":43.8217,"lon":17.6017},{"n":"Neum","lat":42.9233,"lon":17.615},{"n":"Grude","lat":43.3667,"lon":17.185},{"n":"Posušje","lat":43.4717,"lon":17.3633},{"n":"Široki Brijeg","lat":43.3833,"lon":17.5967},{"n":"Tomislavgrad","lat":43.7183,"lon":17.2267},{"n":"Livno","lat":43.8267,"lon":16.9783},{"n":"Kupres","lat":43.9733,"lon":17.2683},{"n":"Drvar","lat":44.3733,"lon":16.38},{"n":"Glamoč","lat":43.9767,"lon":16.8567},{"n":"Bosansko Grahovo","lat":44.19,"lon":16.3783},{"n":"Banja Luka","lat":44.7722,"lon":17.191},{"n":"Prijedor","lat":44.98,"lon":16.7133},{"n":"Bijeljina","lat":44.7558,"lon":19.2167},{"n":"Doboj","lat":44.7317,"lon":18.0867},{"n":"Trebinje","lat":42.7117,"lon":18.3433},{"n":"Zvornik","lat":44.39,"lon":19.1},{"n":"Pale","lat":43.8167,"lon":18.5667},{"n":"Laktaši","lat":44.9017,"lon":17.3017},{"n":"Prnjavor","lat":44.8683,"lon":17.66},{"n":"Gradiška","lat":45.1517,"lon":17.2617},{"n":"Modriča","lat":44.9533,"lon":18.2983},{"n":"Brčko","lat":44.8717,"lon":18.81},{"n":"Derventa","lat":44.9833,"lon":17.9083},{"n":"Kotor Varoš","lat":44.6233,"lon":17.37},{"n":"Mrkonjić Grad","lat":44.4133,"lon":17.0833},{"n":"Šipovo","lat":44.2983,"lon":17.09},{"n":"Srbac","lat":45.0983,"lon":17.5217},{"n":"Čelinac","lat":44.7217,"lon":17.3183},{"n":"Kozarska Dubica","lat":45.1833,"lon":16.8067},{"n":"Novi Grad RS","lat":45.0517,"lon":16.3783},{"n":"Kostajnica","lat":45.215,"lon":16.5467},{"n":"Vlasenica","lat":44.1817,"lon":18.935},{"n":"Milići","lat":44.1717,"lon":19.0883},{"n":"Han Pijesak","lat":44.0817,"lon":18.97},{"n":"Sokolac","lat":43.9367,"lon":18.7967},{"n":"Rogatica","lat":43.7983,"lon":19.0},{"n":"Višegrad","lat":43.7833,"lon":19.2933},{"n":"Srebrenica","lat":44.1,"lon":19.3},{"n":"Bratunac","lat":44.1833,"lon":19.3333},{"n":"Šekovići","lat":44.2967,"lon":18.8667},{"n":"Lopare","lat":44.6367,"lon":18.845},{"n":"Ugljevik","lat":44.6883,"lon":18.9733},{"n":"Šamac","lat":45.055,"lon":18.4733},{"n":"Teslić","lat":44.605,"lon":17.8567},{"n":"Foča","lat":43.5083,"lon":18.7783},{"n":"Čajniče","lat":43.5617,"lon":19.0683},{"n":"Rudo","lat":43.6183,"lon":19.3733},{"n":"Kalinovik","lat":43.5083,"lon":18.4433},{"n":"Nevesinje","lat":43.2583,"lon":18.1133},{"n":"Gacko","lat":43.1683,"lon":18.5333},{"n":"Bileća","lat":42.8783,"lon":18.4283},{"n":"Berkovići","lat":43.1583,"lon":18.0283},{"n":"Ljubinje","lat":42.9583,"lon":18.0883},{"n":"Pelagićevo","lat":44.8617,"lon":18.4883},{"n":"Vukosavlje","lat":44.85,"lon":18.3767},{"n":"Petrovo","lat":44.6517,"lon":18.3783},{"n":"Stanari","lat":44.7083,"lon":17.8933},{"n":"Osmaci","lat":44.33,"lon":18.9767},{"n":"Kneževo","lat":44.4867,"lon":17.3833},{"n":"Jezero","lat":44.275,"lon":17.2083},{"n":"Dobretići","lat":44.35,"lon":17.4333},{"n":"Usora","lat":44.6717,"lon":18.07},{"n":"Doboj Jug","lat":44.71,"lon":18.0717},{"n":"Doboj Istok","lat":44.7567,"lon":18.11},{"n":"Međugorje","lat":43.1967,"lon":17.6733},{"n":"Blagaj","lat":43.26,"lon":17.9067},{"n":"Počitelj","lat":43.13,"lon":17.7317},{"n":"Potoci","lat":43.3783,"lon":17.7617},{"n":"Raštani","lat":43.3133,"lon":17.8817},{"n":"Žitomislići","lat":43.1967,"lon":17.7967},{"n":"Doljani","lat":43.6183,"lon":17.7217},{"n":"Pazarić","lat":43.8833,"lon":18.2},{"n":"Tarčin","lat":43.8533,"lon":18.095},{"n":"Blažuj","lat":43.8283,"lon":18.235},{"n":"Ustikolina","lat":43.705,"lon":18.82},{"n":"Prača","lat":43.7983,"lon":18.7817},{"n":"Hrenovica","lat":43.735,"lon":18.8683},{"n":"Avtovac","lat":43.105,"lon":18.5867},{"n":"Janja","lat":44.6667,"lon":19.2583},{"n":"Potočari","lat":44.1333,"lon":19.2833},{"n":"Domaljevac","lat":45.0617,"lon":18.6133},{"n":"Omarska","lat":44.9033,"lon":16.8933},{"n":"Kozarac","lat":44.96,"lon":16.7833},{"n":"Ljubija","lat":44.9267,"lon":16.6017},{"n":"Šargovac","lat":44.8067,"lon":17.2183},{"n":"Dragočaj","lat":44.7517,"lon":17.0433},{"n":"Zalužani","lat":44.7417,"lon":17.17},{"n":"Klašnice","lat":44.8467,"lon":17.3},{"n":"Aleksandrovac","lat":44.925,"lon":17.1883},{"n":"Trn","lat":44.8067,"lon":17.1183},{"n":"Gornji Vakuf","lat":43.9417,"lon":17.5917},{"n":"Uskoplje","lat":43.9417,"lon":17.5917},{"n":"Kaćuni","lat":44.0283,"lon":17.76},{"n":"Nemila","lat":44.2533,"lon":17.8633},{"n":"Vranduk","lat":44.2567,"lon":17.9567},{"n":"Gornja Tuzla","lat":44.5783,"lon":18.6967},{"n":"Puračić","lat":44.5583,"lon":18.51},{"n":"Šićki Brod","lat":44.5283,"lon":18.5833},{"n":"Husino","lat":44.5017,"lon":18.6467},{"n":"Đurđevik","lat":44.3933,"lon":18.6033},{"n":"Dokanj","lat":44.4267,"lon":18.5933},{"n":"Simin Han","lat":44.5317,"lon":18.5117},{"n":"Klokotnica","lat":44.565,"lon":18.56},{"n":"Dobrinja","lat":43.8267,"lon":18.3467},{"n":"Hrasnica","lat":43.805,"lon":18.325},{"n":"Hotonj","lat":43.9067,"lon":18.3583},{"n":"Semizovac","lat":43.9383,"lon":18.3317},{"n":"Brod","lat":45.1483,"lon":17.9867},{"n":"Bijela","lat":43.56,"lon":18.0917},{"n":"Borci","lat":43.7,"lon":17.8833},{"n":"Buturović Polje","lat":43.705,"lon":17.9367},{"n":"Celebići","lat":43.6383,"lon":18.0633},{"n":"Maoča","lat":44.625,"lon":18.7783},{"n":"Sočkovac","lat":44.6133,"lon":18.3617},{"n":"Podnovlje","lat":44.7367,"lon":18.155},{"n":"Klupe","lat":44.8167,"lon":17.9833},{"n":"Kotorsko","lat":44.8333,"lon":18.1167},{"n":"Nova Topola","lat":45.0817,"lon":17.2683},{"n":"Gornja Vijaka","lat":45.0233,"lon":17.5633},{"n":"Brezičani","lat":44.92,"lon":17.7433},{"n":"Bistrica","lat":44.9183,"lon":17.8083},{"n":"Šiprage","lat":44.555,"lon":17.4733},{"n":"Maslovare","lat":44.5283,"lon":17.5467},{"n":"Trnovo RS","lat":43.6583,"lon":18.5283},{"n":"Bočac","lat":44.4167,"lon":17.2},{"n":"Ribnik","lat":44.5133,"lon":16.95},{"n":"Lušci Palanka","lat":44.6933,"lon":16.71},{"n":"Sanica","lat":44.6,"lon":16.7833},{"n":"Oštra Luka","lat":44.8767,"lon":16.71},{"n":"Stari Majdan","lat":44.7267,"lon":16.6133},{"n":"Hrustovo","lat":44.6583,"lon":16.6167},{"n":"Kamengrad","lat":44.605,"lon":16.5983},{"n":"Fajtovci","lat":44.5683,"lon":16.705},{"n":"Lukavice","lat":43.8133,"lon":18.4667},{"n":"Reljevo","lat":43.8917,"lon":18.3167},{"n":"Rajlovac","lat":43.8683,"lon":18.31},{"n":"Stup","lat":43.8567,"lon":18.3333},{"n":"Otes","lat":43.8367,"lon":18.31},{"n":"Sokolović Kolonija","lat":43.8317,"lon":18.3133},{"n":"Butmir","lat":43.8133,"lon":18.3317},{"n":"Kotorac","lat":43.805,"lon":18.3617},{"n":"Vojkovići","lat":43.8267,"lon":18.4033},{"n":"Tilava","lat":43.7883,"lon":18.36},{"n":"Moševići","lat":44.5833,"lon":18.3},{"n":"Stjepan Polje","lat":44.6667,"lon":18.1833},{"n":"Bioča","lat":44.645,"lon":18.1033},{"n":"Čevljanovići","lat":43.9667,"lon":18.4817},{"n":"Pale okolina","lat":43.8333,"lon":18.5833},{"n":"Lukavica","lat":43.8133,"lon":18.4667},{"n":"Kula","lat":43.8283,"lon":18.495}];
+
+/* ── WMO CODE → EMOJI / DESC / BG ── */
+const WMO={
+  0:{e:'☀️',d:'Clear sky',b:'sun'},1:{e:'🌤️',d:'Mainly clear',b:'sun'},2:{e:'⛅',d:'Partly cloudy',b:'cloud'},3:{e:'☁️',d:'Overcast',b:'over'},
+  45:{e:'🌫️',d:'Fog',b:'fog'},48:{e:'🌫️',d:'Icy fog',b:'fog'},
+  51:{e:'🌦️',d:'Light drizzle',b:'drz'},53:{e:'🌦️',d:'Drizzle',b:'drz'},55:{e:'🌧️',d:'Dense drizzle',b:'drz'},
+  56:{e:'🌨️',d:'Light freezing drizzle',b:'snow'},57:{e:'🌨️',d:'Freezing drizzle',b:'snow'},
+  61:{e:'🌦️',d:'Slight rain',b:'rain'},63:{e:'🌧️',d:'Moderate rain',b:'rain'},65:{e:'🌧️',d:'Heavy rain',b:'rain'},
+  66:{e:'🌨️',d:'Light freezing rain',b:'snow'},67:{e:'🌨️',d:'Freezing rain',b:'snow'},
+  71:{e:'❄️',d:'Slight snowfall',b:'snow'},73:{e:'❄️',d:'Moderate snowfall',b:'snow'},75:{e:'❄️',d:'Heavy snowfall',b:'snow'},77:{e:'🌨️',d:'Snow grains',b:'snow'},
+  80:{e:'🌦️',d:'Slight showers',b:'rain'},81:{e:'🌧️',d:'Moderate showers',b:'rain'},82:{e:'🌧️',d:'Violent showers',b:'rain'},
+  85:{e:'🌨️',d:'Slight snow showers',b:'snow'},86:{e:'🌨️',d:'Heavy snow showers',b:'snow'},
+  95:{e:'⛈️',d:'Thunderstorm',b:'storm'},96:{e:'⛈️',d:'Thunderstorm w/ hail',b:'storm'},99:{e:'⛈️',d:'Heavy thunderstorm',b:'storm'}
+};
+function wmoInfo(c,isNight=false){
+  const w=WMO[c]||{e:'🌤️',d:'Unknown',b:'sun'};
+  let b='wx-'+w.b;
+  if(w.b==='sun'&&isNight)b='wx-night';
+  return{emoji:w.e,desc:w.d,bg:b};
 }
 
-/* Tall phones — more breathing room */
-@media (min-height:750px) and (orientation:portrait){
-  .mwx{padding:10px 0 6px}
-  .wxicon{font-size:4.6rem}
-  .tempnow{font-size:5.2rem}
+/* ── ACTIVITIES ── */
+/* ── BABO MESSAGES ── */
+const BABO=[
+  {e:'💋',t:'Ljubi nju babo'},
+  {e:'💼',t:'Na poso'},
+  {e:'🍗',t:'E prekidam post'},
+  {e:'🥩',t:'Bijelo meso s kajmakom'},
+  {e:'☕',t:'Hoću kafu odmah'},
+  {e:'😴',t:'Sad ću malo leći'},
+  {e:'📺',t:'Ima li nešto na tv-u'},
+  {e:'🤌',t:'Šta ćeš ti meni'},
+  {e:'🎯',t:'Nije to to babo'},
+  {e:'🥱',t:'Daj mi mira malo'},
+  {e:'🍺',t:'Samo jedno'},
+  {e:'🤦',t:'Ko je to opet zvao'},
+];
+let baboIdx=0,baboTimer=null;
+function startBabo(){
+  const msgs=BABO;
+  baboIdx=Math.floor(Math.random()*msgs.length);
+  showBabo(msgs[baboIdx]);
+  baboTimer=setInterval(()=>{
+    const wrap=document.getElementById('babocur');
+    if(!wrap)return;
+    wrap.classList.add('babo-out');
+    setTimeout(()=>{
+      baboIdx=(baboIdx+1)%msgs.length;
+      showBabo(msgs[baboIdx]);
+      wrap.classList.remove('babo-out');
+      wrap.classList.add('babo-in');
+      setTimeout(()=>wrap.classList.remove('babo-in'),400);
+    },320);
+  },5000);
 }
-@media (min-height:900px) and (orientation:portrait){
-  .mwx{padding:18px 0 10px}
-  .wxicon{font-size:5.2rem}
-  .tempnow{font-size:5.8rem}
+function showBabo(m){
+  const em=document.getElementById('baboem');
+  const tx=document.getElementById('babotxt');
+  if(em)em.textContent=m.e;
+  if(tx)tx.textContent=m.t;
 }
-</style>"""
 
-c = c[:style_start] + new_style + c[style_end:]
+/* ── FORMAT ── */
+const fmtC=c=>unit==='C'?Math.round(c)+'°C':Math.round(c*9/5+32)+'°F';
+const UVL={en:['Low','Moderate','High','Very High','Extreme'],bs:['Nizak','Umjeren','Visok','Veoma visok','Ekstreman'],hr:['Nizak','Umjeren','Visok','Veoma visok','Ekstreman'],sr:['Nizak','Umeren','Visok','Veoma visok','Ekstreman'],de:['Gering','Mittel','Hoch','Sehr hoch','Extrem'],fr:['Faible','Modéré','Élevé','Très élevé','Extrême']};
+const uvLbl=u=>{const l=UVL[lang]||UVL.en;return u<3?l[0]:u<6?l[1]:u<8?l[2]:u<11?l[3]:l[4];};
+const DAYS={en:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],bs:['Ned','Pon','Uto','Sri','Čet','Pet','Sub'],hr:['Ned','Pon','Uto','Sri','Čet','Pet','Sub'],sr:['Ned','Pon','Uto','Sri','Čet','Pet','Sub'],de:['So','Mo','Di','Mi','Do','Fr','Sa'],fr:['Dim','Lun','Mar','Mer','Jeu','Ven','Sam']};
+const dayN=d=>new Date(d+'T12:00:00').getDay();
+const pad=n=>String(n).padStart(2,'0');
 
-# Also fix the logo HTML to be bigger - update lsub class
-c = c.replace(
-    '<div class="logo"><div class="ldot"></div>SkyCast<span class="lsub">Hidic</span></div>',
-    '<div class="logo"><div class="ldot"></div><span>SkyCast</span><span class="lsub">Hidic</span></div>'
-)
+/* ════════════════════════════════════════════
+   OPEN-METEO WEATHER API
+   Docs: https://open-meteo.com/
+   No key, no CORS, real-time worldwide data
+════════════════════════════════════════════ */
+async function fetchWeather(lat,lon){
+  /* Try direct first, fallback to proxy if CORS blocked */
+  const params=`latitude=${lat}&longitude=${lon}`+
+    `&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation_probability,`+
+    `weathercode,windspeed_10m,winddirection_10m,uv_index,visibility,surface_pressure,dewpoint_2m,is_day`+
+    `&hourly=temperature_2m,precipitation_probability,weathercode,windspeed_10m`+
+    `&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset`+
+    `&timezone=auto&forecast_days=7`;
+  const direct=`https://api.open-meteo.com/v1/forecast?${params}`;
+  const proxy=`https://corsproxy.io/?${encodeURIComponent(direct)}`;
+  let r;
+  try{
+    r=await fetch(direct,{mode:'cors'});
+    if(!r.ok)throw new Error('direct fail');
+  }catch{
+    r=await fetch(proxy);
+    if(!r.ok)throw new Error('HTTP '+r.status);
+  }
+  return r.json();
+}
 
-with open('/mnt/user-data/outputs/skycasthidic.html','w') as f:
-    f.write(c)
+/* Open-Meteo Geocoding — searches any city worldwide */
+async function geocodeCity(q){
+  const direct=`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=6&language=en&format=json`;
+  const proxy=`https://corsproxy.io/?${encodeURIComponent(direct)}`;
+  let r,d;
+  try{
+    r=await fetch(direct,{mode:'cors'});
+    if(!r.ok)throw new Error('direct');
+    d=await r.json();
+  }catch{
+    r=await fetch(proxy);
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    d=await r.json();
+  }
+  if(!d.results||!d.results.length)return[];
+  return d.results;
+}
 
-print(f"Done. Size: {len(c)} bytes")
-# Quick checks
-for k in ['min-width:600px','max-height:450px','min-width:900px','min-width:1200px','100dvh','webkit-backdrop']:
-    print(f"{'✓' if k in c else '✗'} {k}")
-PYEOF
-Output
+/* ════════════════════════════════════════════
+   RENDER HOME
+════════════════════════════════════════════ */
+function renderHome(wx,cityName){
+  curData={wx,cityName};
+  const c=wx.current;
+  const isNight=c.is_day===0;
+  const info=wmoInfo(c.weathercode,isNight);
 
-Done. Size: 60808 bytes
-✓ min-width:600px
-✓ max-height:450px
-✓ min-width:900px
-✓ min-width:1200px
-✓ 100dvh
-✓ webkit-backdrop
+  /* BG */
+  applyBg(info.bg);
 
-  ython3 << 'PYEOF'
-with open('/mnt/user-data/outputs/skycasthidic.html','r') as f:
-    c = f.read()
+  /* Header */
+  document.getElementById('hcity').textContent='📍 '+cityName;
+  document.getElementById('hicon').textContent=info.emoji;
+  document.getElementById('htemp').textContent=fmtC(c.temperature_2m);
+  document.getElementById('hdesc').textContent=info.desc;
+  document.getElementById('hfeels').textContent=tr('feels')+': '+fmtC(c.apparent_temperature);
 
-# Fix babo card spacing - remove excessive margin and min-height
-old_babo = 'style="margin:8px 0;animation:fadeup .5s .08s ease both;overflow:hidden;min-height:64px;position:relative"'
-new_babo = 'style="margin:6px 0;animation:fadeup .5s .08s ease both"'
-c = c.replace(old_babo, new_babo)
+  /* Fav */
+  const isFav=favs.some(f=>f.n===cityName);
+  const fb=document.getElementById('favbtn');
+  fb.textContent=isFav?'★':'☆';
+  fb.className='sbtn'+(isFav?' on':'');
 
-# Also tighten rain card top margin
-c = c.replace(
-    '<div class="card rain-card">\n        <div class="rain-top">',
-    '<div class="card rain-card" style="margin-top:0">\n        <div class="rain-top">'
-)
+  /* Activity handled by babo rotator */
 
-with open('/mnt/user-data/outputs/skycasthidic.html','w') as f:
-    f.write(c)
-print("Babo spacing fixed:", old_babo not in c)
-PYEOF
-Output
+  /* Rain */
+  const rp=c.precipitation_probability||0;
+  document.getElementById('rainpct').textContent=rp+'%';
+  document.getElementById('rfill').style.width=rp+'%';
+  document.getElementById('rainlbl').textContent=tr('rain').toUpperCase();
 
-Babo spacing fixed: True
+  /* Highlights */
+  document.getElementById('hlhum').textContent=c.relative_humidity_2m+'%';
+  document.getElementById('hlwind').textContent=Math.round(c.windspeed_10m)+' km/h';
+  const wdirs=['N','NE','E','SE','S','SW','W','NW'];
+  document.getElementById('hlwdir').textContent=wdirs[Math.round((c.winddirection_10m||0)/45)%8];
+  const uv=Math.round(c.uv_index||0);
+  document.getElementById('hluv').textContent=uv;
+  document.getElementById('hluvl').textContent=uvLbl(uv);
+  document.getElementById('hlvis').textContent=((c.visibility||0)/1000).toFixed(1);
+  document.getElementById('hlpres').textContent=Math.round(c.surface_pressure||0);
+  document.getElementById('hldew').textContent=fmtC(c.dewpoint_2m||0);
+  document.getElementById('hldewu').textContent=unit==='C'?'°C':'°F';
+
+  /* Sunrise / Sunset */
+  const sr=wx.daily.sunrise[0]?.split('T')[1]?.substr(0,5)||'—';
+  const ss=wx.daily.sunset[0]?.split('T')[1]?.substr(0,5)||'—';
+  document.getElementById('hlsr').textContent=sr;
+  document.getElementById('hlss').textContent=ss;
+  const nowM=new Date().getHours()*60+new Date().getMinutes();
+  const srM=sr.split(':').reduce((a,b,i)=>a+(i?+b:+b*60),0);
+  const ssM=ss.split(':').reduce((a,b,i)=>a+(i?+b:+b*60),0);
+  const pct=isNight?0:Math.min(100,Math.max(0,Math.round((nowM-srM)/(ssM-srM)*100)));
+  document.getElementById('sfill').style.width=pct+'%';
+
+  /* ── 24H HOURLY ── */
+  const hEl=document.getElementById('hourly');
+  hEl.innerHTML='';
+  const now=new Date();
+  const curHour=now.getHours();
+  const times=wx.hourly.time;
+  let count=0;
+  for(let i=0;i<times.length&&count<8;i++){
+    const t=new Date(times[i]);
+    if(t<new Date(now.getTime()-3600000))continue;
+    count++;
+    const hh=t.getHours();
+    const pop=wx.hourly.precipitation_probability[i]||0;
+    const wsp=Math.round(wx.hourly.windspeed_10m[i]||0);
+    const hInfo=wmoInfo(wx.hourly.weathercode[i],hh<6||hh>=20);
+    const el=document.createElement('div');
+    el.className='hc';
+    el.innerHTML=`<div class="htime">${pad(hh)}:00</div>
+<div class="hico">${hInfo.emoji}</div>
+<div class="htemp">${fmtC(wx.hourly.temperature_2m[i])}</div>
+${pop>5?`<div class="hpop">💧${pop}%</div>`:''}
+<div class="hwsp">${wsp}km/h</div>`;
+    hEl.appendChild(el);
+  }
+
+  /* ── 7-DAY ── */
+  const dEl=document.getElementById('daily');
+  dEl.innerHTML='';
+  wx.daily.time.forEach((day,i)=>{
+    const code=wx.daily.weathercode[i];
+    const dInfo=wmoInfo(code,false);
+    const pop=wx.daily.precipitation_probability_max[i]||0;
+    const dn=i===0?tr('today'):(DAYS[lang]||DAYS.en)[dayN(day)];
+    const row=document.createElement('div');
+    row.className='drow';
+    row.innerHTML=`<div class="dday">${dn}</div>
+<div class="dico">${dInfo.emoji}</div>
+<div class="ddesc">${dInfo.desc}</div>
+${pop>5?`<div class="dpop">💧${pop}%</div>`:'<div class="dpop"></div>'}
+<div class="dhi">${fmtC(wx.daily.temperature_2m_max[i])}</div>
+<div class="dlo2">${fmtC(wx.daily.temperature_2m_min[i])}</div>`;
+    dEl.appendChild(row);
+  });
+}
+
+/* ════════════════════════════════════════════
+   LOAD CITY
+════════════════════════════════════════════ */
+async function loadCoords(lat,lon,name){
+  showLoad(tr('load'));
+  try{
+    const wx=await fetchWeather(lat,lon);
+    hideLoad();
+    renderHome(wx,name);
+    setTimeout(initDragScroll,80);
+    goPg('home',document.querySelector('.nbtn'));
+  }catch(e){
+    hideLoad();
+    console.error('Weather error:',e);
+    if(!navigator.onLine){toast(tr('offline'),'err');return;}
+    toast(tr('err')+'  ('+e.message+')','err');
+  }
+}
+
+/* ── GEO ── */
+function detectGeo(){
+  document.getElementById('ltxt').textContent=tr('detect');
+  document.getElementById('loading').style.display='flex';
+  if(!navigator.geolocation){loadCoords(43.8519,18.3866,'Sarajevo');return;}
+  navigator.geolocation.getCurrentPosition(
+    async p=>{
+      /* Find nearest BiH place from database */
+      const lat=p.coords.latitude, lon=p.coords.longitude;
+      let nearName='Moja lokacija';
+      let minD=999;
+      BIH.forEach(pl=>{
+        const d=Math.abs(pl.lat-lat)+Math.abs(pl.lon-lon);
+        if(d<minD){minD=d;nearName=pl.n;}
+      });
+      /* If far from BiH, try geocoding via open-meteo search by coords */
+      if(minD>2){nearName='Moja lokacija';}
+      loadCoords(lat,lon,nearName);
+    },
+    ()=>loadCoords(43.8519,18.3866,'Sarajevo'),
+    {timeout:8000,enableHighAccuracy:false}
+  );
+}
+
+/* ── SEARCH ── */
+function initChips(){
+  /* BiH major cities as chips */
+  const major=['Sarajevo','Banja Luka','Tuzla','Mostar','Zenica','Bijeljina','Brčko','Trebinje','Doboj','Bihać','Konjic','Travnik','Livno','Jajce','Goražde'];
+  const bihEl=document.getElementById('bihchips');
+  major.forEach(n=>{
+    const p=BIH.find(x=>x.n===n);
+    if(!p)return;
+    const el=document.createElement('div');el.className='chip';el.textContent=n;
+    el.onclick=()=>loadCoords(p.lat,p.lon,n);
+    bihEl.appendChild(el);
+  });
+  const regEl=document.getElementById('regchips');
+  NEAR.forEach(n=>{
+    const el=document.createElement('div');el.className='chip';el.textContent=n;
+    el.onclick=()=>searchAndLoad(n);
+    regEl.appendChild(el);
+  });
+}
+
+/* BiH autocomplete */
+function filterBIH(q){
+  if(!q||q.length<1)return[];
+  const lq=q.toLowerCase().replace(/[čć]/g,'c').replace(/š/g,'s').replace(/ž/g,'z').replace(/đ/g,'d');
+  return BIH.filter(p=>{
+    const ln=p.n.toLowerCase().replace(/[čć]/g,'c').replace(/š/g,'s').replace(/ž/g,'z').replace(/đ/g,'d');
+    return ln.startsWith(lq)||ln.includes(lq);
+  }).slice(0,8);
+}
+
+function onType(){
+  clearTimeout(typeT);
+  const v=document.getElementById('sinp').value.trim();
+  renderDrop(v);
+  typeT=setTimeout(()=>{if(v.length>=3)doSearch();},800);
+}
+
+function renderDrop(v){
+  const drop=document.getElementById('bih-drop');
+  if(!v){drop.className='';return;}
+  const results=filterBIH(v);
+  if(!results.length){drop.className='';return;}
+  drop.innerHTML='';
+  results.forEach((p,i)=>{
+    const d=document.createElement('div');
+    d.className='dditem';
+    d.innerHTML=`<span class="flag">🇧🇦</span><div><div>${p.n}</div><div class="ddmeta">Bosnia & Herzegovina</div></div>`;
+    d.addEventListener('mousedown',e=>{e.preventDefault();loadCoords(p.lat,p.lon,p.n);document.getElementById('sinp').value='';drop.className='';});
+    drop.appendChild(d);
+  });
+  drop.className='open';
+  dropIdx=-1;
+}
+
+function showDrop(){const v=document.getElementById('sinp').value.trim();if(v)renderDrop(v);}
+function hideDrop(){setTimeout(()=>document.getElementById('bih-drop').className='',200);}
+
+function handleKey(e){
+  const drop=document.getElementById('bih-drop');
+  const items=drop.querySelectorAll('.dditem');
+  if(e.key==='ArrowDown'){e.preventDefault();dropIdx=Math.min(dropIdx+1,items.length-1);items.forEach((el,i)=>el.classList.toggle('sel',i===dropIdx));}
+  else if(e.key==='ArrowUp'){e.preventDefault();dropIdx=Math.max(dropIdx-1,0);items.forEach((el,i)=>el.classList.toggle('sel',i===dropIdx));}
+  else if(e.key==='Enter'){if(dropIdx>=0&&items[dropIdx]){items[dropIdx].dispatchEvent(new MouseEvent('mousedown'));}else doSearch();}
+  else if(e.key==='Escape'){drop.className='';}
+}
+
+async function doSearch(){
+  const v=document.getElementById('sinp').value.trim();
+  const rl=document.getElementById('rlist');
+  if(!v){rl.innerHTML='';return;}
+
+  /* First check BiH database */
+  const bihHit=filterBIH(v);
+  if(bihHit.length){
+    rl.innerHTML='';
+    bihHit.slice(0,5).forEach(p=>{
+      const card=document.createElement('div');card.className='rc';
+      card.innerHTML=`<div><div class="rcity">🇧🇦 ${p.n}</div><div class="rinfo">Bosnia & Herzegovina</div></div><div style="font-size:1.8rem">→</div>`;
+      card.onclick=()=>loadCoords(p.lat,p.lon,p.n);
+      rl.appendChild(card);
+    });
+    return;
+  }
+
+  /* Else use Open-Meteo Geocoding */
+  rl.innerHTML='<div style="opacity:.38;font-size:.82rem;padding:10px 4px;font-family:var(--mono)">Searching…</div>';
+  try{
+    const res=await geocodeCity(v);
+    rl.innerHTML='';
+    if(!res.length){rl.innerHTML=`<div class="rc"><div class="rcity">❌ ${tr('no_city')}</div></div>`;return;}
+    res.slice(0,5).forEach(g=>{
+      const name=g.name+(g.admin1?', '+g.admin1:'');
+      const card=document.createElement('div');card.className='rc';
+      card.innerHTML=`<div><div class="rcity">${g.name}</div><div class="rinfo">${g.country_code?.toUpperCase()||''} ${g.admin1||''} ${g.admin2||''}</div></div><div style="font-size:1.8rem">→</div>`;
+      card.onclick=()=>loadCoords(g.latitude,g.longitude,g.name);
+      rl.appendChild(card);
+    });
+  }catch(e){
+    if(!navigator.onLine){toast(tr('offline'),'err');rl.innerHTML='';return;}
+    rl.innerHTML=`<div class="rc"><div class="rcity">❌ ${tr('no_city')}</div></div>`;
+  }
+}
+
+async function searchAndLoad(q){
+  showLoad(tr('load'));
+  try{
+    const res=await geocodeCity(q);
+    if(res.length){loadCoords(res[0].latitude,res[0].longitude,res[0].name);}
+    else{hideLoad();toast(tr('no_city'),'err');}
+  }catch(e){hideLoad();toast(tr('err'),'err');}
+}
+
+/* ── WEATHER FX ── */
+function applyBg(cls){
+  const b=document.body;
+  [...b.classList].filter(c=>c.startsWith('wx-')).forEach(c=>b.classList.remove(c));
+  b.classList.add(cls);
+  buildFx(cls);
+  if(cls==='wx-storm')startBolt();else stopBolt();
+}
+function buildFx(cls){
+  if(fxDone[cls])return;fxDone[cls]=true;
+  if(cls==='wx-night'){
+    const el=document.getElementById('stars');
+    if(!el.childElementCount){for(let i=0;i<90;i++){const s=document.createElement('div');s.className='star';const z=1+Math.random()*2.5;s.style.cssText=`width:${z}px;height:${z}px;left:${Math.random()*100}%;top:${Math.random()*75}%;--d:${2+Math.random()*4}s;--dl:${Math.random()*4}s`;el.appendChild(s);}}
+  }
+  if(cls==='wx-rain'||cls==='wx-drz'||cls==='wx-storm'){
+    const el=document.getElementById('rain');
+    if(!el.childElementCount){const n=cls==='wx-drz'?32:68;for(let i=0;i<n;i++){const d=document.createElement('div');d.className='drop';d.style.cssText=`left:${Math.random()*112-6}%;width:${cls==='wx-drz'?1:1.5}px;height:${cls==='wx-drz'?10:22}px;animation-duration:${.42+Math.random()*.48}s;animation-delay:${Math.random()*.8}s`;el.appendChild(d);}}
+  }
+  if(cls==='wx-snow'){
+    const el=document.getElementById('snow');
+    if(!el.childElementCount){for(let i=0;i<45;i++){const f=document.createElement('div');f.className='flake';f.textContent=['❄','❅','❆'][i%3];f.style.cssText=`left:${Math.random()*100}%;font-size:${7+Math.random()*10}px;animation-duration:${3+Math.random()*5}s;animation-delay:${Math.random()*5}s`;el.appendChild(f);}}
+  }
+  if(cls==='wx-fog'){
+    const el=document.getElementById('fog');
+    if(!el.childElementCount){for(let i=0;i<6;i++){const b=document.createElement('div');b.className='fband';b.style.cssText=`top:${2+i*16}%;height:${80+i*22}px;animation-duration:${15+i*6}s;animation-delay:${i*3}s`;el.appendChild(b);}}
+  }
+}
+function startBolt(){const el=document.getElementById('bolt');function f(){el.style.opacity='.9';setTimeout(()=>el.style.opacity='0',55+Math.random()*90);boltT=setTimeout(f,3000+Math.random()*7000);}f();}
+function stopBolt(){clearTimeout(boltT);document.getElementById('bolt').style.opacity='0';}
+
+/* ── FAVS ── */
+function toggleFav(){
+  if(!curData)return;
+  const n=curData.cityName;
+  const i=favs.findIndex(f=>f.n===n);
+  if(i===-1)favs.push({n});else favs.splice(i,1);
+  try{localStorage.setItem('sch4_favs',JSON.stringify(favs));}catch(e){}
+  renderHome(curData.wx,curData.cityName);
+}
+
+/* ── SETTINGS ── */
+function setUnit(u){
+  unit=u;
+  document.querySelectorAll('.ubtn').forEach(b=>b.classList.toggle('on',b.textContent.includes(u)));
+  const s=document.getElementById('unitsel');if(s)s.value=u;
+  if(curData)renderHome(curData.wx,curData.cityName);
+}
+function setTheme(el){
+  const t=el.dataset.t;theme=t;
+  const b=document.body;
+  [...b.classList].filter(c=>c.startsWith('th-')).forEach(c=>b.classList.remove(c));
+  if(t!=='blue')b.classList.add('th-'+t);
+  document.querySelectorAll('.tsw').forEach(s=>s.classList.toggle('on',s.dataset.t===t));
+}
+function setLang(l){
+  lang=l;
+  document.getElementById('n0').textContent=tr('home');
+  document.getElementById('n1').textContent=tr('search');
+  document.getElementById('n2').textContent=tr('settings');
+  /* actlbl removed */
+  if(curData)renderHome(curData.wx,curData.cityName);
+}
+
+/* ── NAV ── */
+function goPg(name,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nbtn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('page-'+name).classList.add('on');
+  if(btn)btn.classList.add('on');
+}
+
+/* ── HELPERS ── */
+function showLoad(m){document.getElementById('ltxt').textContent=m||'';document.getElementById('loading').style.display='flex';}
+function hideLoad(){document.getElementById('loading').style.display='none';}
+function toast(m,t='inf'){const e=document.getElementById('toast');e.textContent=m;e.className=t+' show';clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),3400);}
+window.addEventListener('online',()=>document.body.classList.remove('offline'));
+window.addEventListener('offline',()=>document.body.classList.add('offline'));
+
+/* ── INIT ── */
+window.addEventListener('DOMContentLoaded',()=>{
+  initChips();
+  startBabo();
+  initDragScroll();
+  detectGeo();
+});
+
+/* Drag-to-scroll for hourly + daily on desktop mouse */
+function initDragScroll(){
+  ['.hwrap','.dwrap'].forEach(sel=>{
+    const el=document.querySelector(sel);
+    if(!el)return;
+    let isDown=false,startX=0,scrollLeft=0;
+    el.addEventListener('mousedown',e=>{isDown=true;el.classList.add('active');startX=e.pageX-el.offsetLeft;scrollLeft=el.scrollLeft;});
+    el.addEventListener('mouseleave',()=>{isDown=false;el.classList.remove('active');});
+    el.addEventListener('mouseup',()=>{isDown=false;el.classList.remove('active');});
+    el.addEventListener('mousemove',e=>{if(!isDown)return;e.preventDefault();const x=e.pageX-el.offsetLeft;el.scrollLeft=scrollLeft-(x-startX)*1.2;});
+  });
+}
+</script>
+</body>
+</html>
