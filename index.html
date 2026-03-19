@@ -138,8 +138,9 @@ body.wx-fog #fog{opacity:1}
 .sunrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
 .stime{font-size:.95rem;font-weight:700;font-family:var(--mono)}
 .sico{font-size:1.2rem}
-.sunbar{height:4px;background:rgba(255,255,255,.12);border-radius:2px;position:relative}
-.sfill{position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,#ffe040,#ff8820);border-radius:2px;transition:width 1.4s ease}
+.sunbar{height:6px;background:rgba(255,255,255,.12);border-radius:3px;position:relative;margin:4px 0}
+.sfill{position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,#ffe040,#ff8820);border-radius:3px;transition:width 1.4s ease}
+.sdot{position:absolute;top:50%;transform:translate(-50%,-50%);width:13px;height:13px;background:#fff;border-radius:50%;box-shadow:0 0 8px #ffcc00,0 0 16px #ff8820;transition:left 1.4s ease;pointer-events:none}
 .slls{display:flex;justify-content:space-between;margin-top:4px;font-size:.56rem;opacity:.35}
 
 /* SECTION TITLES */
@@ -366,7 +367,7 @@ body.offline #offbar{display:block}
             <div class="sico">☀️</div>
             <div class="stime" id="hlss">—</div>
           </div>
-          <div class="sunbar"><div class="sfill" id="sfill" style="width:0%"></div></div>
+          <div class="sunbar"><div class="sfill" id="sfill" style="width:0%"></div><div class="sdot" id="sdot" style="left:0%"></div></div>
           <div class="slls"><span>Sunrise</span><span>Sunset</span></div>
         </div>
       </div>
@@ -670,10 +671,14 @@ function renderHome(wx,cityName){
   document.getElementById('hlsr').textContent=sr;
   document.getElementById('hlss').textContent=ss;
   const nowM=new Date().getHours()*60+new Date().getMinutes();
-  const srM=sr.split(':').reduce((a,b,i)=>a+(i?+b:+b*60),0);
-  const ssM=ss.split(':').reduce((a,b,i)=>a+(i?+b:+b*60),0);
-  const pct=isNight?0:Math.min(100,Math.max(0,Math.round((nowM-srM)/(ssM-srM)*100)));
-  document.getElementById('sfill').style.width=pct+'%';
+  const srParts=sr.split(':');const ssParts=ss.split(':');
+  const srM=parseInt(srParts[0])*60+parseInt(srParts[1]||0);
+  const ssM=parseInt(ssParts[0])*60+parseInt(ssParts[1]||0);
+  const pct=(srM&&ssM&&ssM>srM)?Math.min(100,Math.max(0,Math.round((nowM-srM)/(ssM-srM)*100))):0;
+  const finalPct=isNight?0:pct;
+  document.getElementById('sfill').style.width=finalPct+'%';
+  const dot=document.getElementById('sdot');
+  if(dot)dot.style.left=finalPct+'%';
 
   /* ── 24H HOURLY ── */
   const hEl=document.getElementById('hourly');
